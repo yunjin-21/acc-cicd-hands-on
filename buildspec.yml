@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+    pre_build:
+        commands:
+            - echo Logging in to Amazon ECR...
+            - $(aws ecr get-login --no-include-email --region ap-northeast-2)
+    build:
+        commands:
+            - echo Build started on `date`
+            - echo Building the Docker image...
+            - docker build -t cicd-prac:latest .
+            - docker tag cicd-prac:latest 341724186820.dkr.ecr.ap-northeast-2.amazonaws.com/cicd-prac:latest
+    post_build:
+        commands:
+            - echo Build completed on `date`
+            - echo Pushing the Docker image...
+            - docker push 341724186820.dkr.ecr.ap-northeast-2.amazonaws.com/cicd-prac:latest
+            - printf '[{"name":"%s","imageUri":"%s"}]' cicd-prac 341724186820.dkr.ecr.ap-northeast-2.amazonaws.com/cicd-prac:latest  > imagedefinitions.json
+artifacts:
+    files: imagedefinitions.json
